@@ -659,6 +659,21 @@ RC BufferPoolManager::close_file(const char *_file_name)
   return RC::SUCCESS;
 }
 
+RC BufferPoolManager::drop_file(const char *_file_name)
+{
+  RC rc = RC::SUCCESS;
+  rc = close_file(_file_name);
+  if (rc != RC::SUCCESS) {
+    LOG_ERROR("Failed to close buffer pool file");
+    return rc;
+  }
+  if (unlink(_file_name) != 0) {
+    LOG_ERROR("Failed to remove disk buffer pool file=%s, errno=%d", _file_name, errno);
+    return RC::GENERIC_ERROR;
+  }
+  return RC::SUCCESS;
+}
+
 RC BufferPoolManager::flush_page(Frame &frame)
 {
   int fd = frame.file_desc();
